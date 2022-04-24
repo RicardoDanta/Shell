@@ -10,58 +10,60 @@ int main(void)
 	char *buffer = NULL;
 	size_t bufsize = 0;
 	int i = 0;
-	char **arg;
-	int r = 0;
+	char **arg, *token = NULL;
 
 	while (1)
 	{
 		write(1, "$ ", 2);
 
-		if ((getline(&buffer, &bufsize, stdin)) == -1)
-			break;
+	if (getline(&buffer, &bufsize, stdin) == -1)
+		break;
 
-		char * token = strtok(buffer, " ");
-		
-		while (token != NULL)
-		{
-			arg[i] = token;
-			arg[i + 1] = NULL;
-			token = strtok(NULL, " ");
-			i++;
-		} 
-		r = forkwaitexecve(arg);
+		token = strtok(buffer, " ");
+
+	while (token != NULL)
+	{
+		arg[i] = token;
+		token = strtok(NULL, " ");
+		i++;
+	}
+
+	forkwaitexecve(arg);
+
 	}
 	free(buffer);
-	return (r);
+	return (0);
 }
 
 /**
- * fork+wait+execve - Duplicate, execute and wait
+ * forkwaitexecve - Duplicate, execute and wait
+ * @argv: arguments
  * Return: 0
  */
 
 int forkwaitexecve(char **argv)
 {
-	pid_t child; //define un proceso
-	int status; //estado de un proceso
-	int execution; //variable equivalente a execve
+	pid_t child; /** define un proceso */
+	int status = 0; /** estado de un proceso */
 
-	child = fork(); //proceso para duplicar
-		
-	if (child == -1) //comprueba caso de error
-	{
-		perror ("Error:");
-		return (1); //1 en caso de error
-	}
-	else if (child == 0) //si el hijo es exitoso
-	{
-		if (execve(argv[0], argv, NULL) == -1)
+	child = fork(); /** proceso para duplicar */
+
+		if (child == -1) /** comprueba caso de error */
 		{
-			perror ("Error:"); //en caso de que la ejecución falle
-			exit(-1);
+			perror("Error:");
+			return (1); /** en caso de error */
 		}
-	}
-	else
-		wait (&status);
-	return (0);
+		else if (child == 0) /** si el hijo es exitoso */
+		{
+			execve(argv[0], argv, NULL);
+			if (execve(argv[0], argv, NULL) == -1)
+			{
+				perror("Error:"); /** en caso de que la ejecución falle */
+				exit(-1);
+			}
+			free(argv);
+		}
+		else
+			wait(&status);
+		return (status);
 }
