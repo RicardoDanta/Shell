@@ -10,7 +10,8 @@ int main(void)
 	char *buffer = NULL;
 	size_t bufsize = 0;
 	int i = 0;
-	char *arg[1024];
+	char **arg;
+	int r = 0;
 
 	while (1)
 	{
@@ -23,12 +24,15 @@ int main(void)
 		
 		while (token != NULL)
 		{
-			arg[i++] = token;
+			arg[i] = token;
+			arg[i + 1] = NULL;
 			token = strtok(NULL, " ");
-		}
-		return (forkwaitexecve(arg)); 
+			i++;
+		} 
+		r = forkwaitexecve(arg);
 	}
 	free(buffer);
+	return (r);
 }
 
 /**
@@ -51,7 +55,7 @@ int forkwaitexecve(char **argv)
 	}
 	else if (child == 0) //si el hijo es exitoso
 	{
-		if ((execution = execve(argv[0], argv, NULL)) == -1)
+		if (execve(argv[0], argv, NULL) == -1)
 		{
 			perror ("Error:"); //en caso de que la ejecución falle
 			exit(-1);
