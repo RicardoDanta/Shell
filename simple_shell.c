@@ -19,11 +19,20 @@ int main(void)
 	if (getline(&buffer, &bufsize, stdin) == -1)
 		break;
 
+		token = strtok(buffer, "\n");
 		token = strtok(buffer, " ");
 
 	while (token != NULL)
 	{
 		arg[i] = token;
+
+		if (arg == NULL)
+		{
+			free(arg);
+			free(token);
+			free(buffer);
+			return (0);
+		}
 		token = strtok(NULL, " ");
 		i++;
 	}
