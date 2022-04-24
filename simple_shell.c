@@ -7,26 +7,28 @@
 
 int main(void)
 {
-	char *buffer;
-	size_t bufsize = 1024;
-	size_t characters;
-	
+	char *buffer = NULL;
+	size_t bufsize = 0;
+	int i = 0;
+	char *arg[1024];
+
 	while (1)
 	{
 		write(1, "$ ", 2);
 
-		if ((characters = getline(&buffer, &bufsize, stdin)) == -1)
+		if ((getline(&buffer, &bufsize, stdin)) == -1)
 			break;
 
 		char * token = strtok(buffer, " ");
 		
 		while (token != NULL)
 		{
-			
+			arg[i++] = token;
 			token = strtok(NULL, " ");
 		}
+		return (forkwaitexecve(arg)); 
 	}
-
+	free(buffer);
 }
 
 /**
@@ -34,12 +36,11 @@ int main(void)
  * Return: 0
  */
 
-int forkwaitexecve(void)
+int forkwaitexecve(char **argv)
 {
 	pid_t child; //define un proceso
 	int status; //estado de un proceso
 	int execution; //variable equivalente a execve
-	char **argv;
 
 	child = fork(); //proceso para duplicar
 		
@@ -51,9 +52,10 @@ int forkwaitexecve(void)
 	else if (child == 0) //si el hijo es exitoso
 	{
 		if ((execution = execve(argv[0], argv, NULL)) == -1)
+		{
 			perror ("Error:"); //en caso de que la ejecución falle
-		else
-			execution; //si la misma es exitosa
+			exit(-1);
+		}
 	}
 	else
 		wait (&status);

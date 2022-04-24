@@ -12,6 +12,6 @@
 #include <stddef.h>
 
 int main(void);
-int forkwaitexecve(void);
+int forkwaitexecve(char **argv);
 
 #endif
